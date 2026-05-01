@@ -3,85 +3,137 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Upload Firebase</title>
+<title>Hoàng Sơn Nhà Thuê</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+body { font-family: sans-serif; }
+.property-card { transition: 0.2s; }
+.property-card:active { transform: scale(0.98); }
+</style>
 </head>
 
-<body>
-<h2>Upload ảnh Firebase</h2>
+<body class="bg-gray-50 pb-20">
 
-<input type="file" id="fileInput" multiple>
-<button onclick="uploadImages()">Upload</button>
+<header class="p-4 bg-white shadow flex justify-between">
+    <h1 class="font-bold">Hoàng Sơn Nhà Thuê</h1>
+    <a href="tel:0901026345">📞</a>
+</header>
 
-<div id="preview"></div>
+<main class="p-4">
+    <h2 class="font-bold mb-4">Danh sách nhà</h2>
+    <div id="grid">Đang tải dữ liệu...</div>
+</main>
+
+<button onclick="openAdmin()" style="position:fixed;bottom:20px;right:20px;">➕</button>
+
+<div id="admin" style="display:none;position:fixed;inset:0;background:#0008;">
+    <div style="background:white;padding:20px;margin:40px;">
+        <textarea id="text" placeholder="Dán nội dung..." style="width:100%"></textarea>
+        <input type="file" id="file" multiple>
+        <button onclick="save()">Đăng</button>
+        <button onclick="closeAdmin()">Đóng</button>
+    </div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// ✅ CONFIG ĐÃ FIX
 const firebaseConfig = {
   apiKey: "AIzaSyDGQqB3NtdO_sDHAqS3l9VXthixcafCTe4",
   authDomain: "hoangsonland-cfea5.firebaseapp.com",
   projectId: "hoangsonland-cfea5",
-  storageBucket: "hoangsonland-cfea5.appspot.com", // 🔥 QUAN TRỌNG
+  storageBucket: "hoangsonland-cfea5.appspot.com", // ✅ FIX
   messagingSenderId: "544947429383",
   appId: "1:544947429383:web:31385cfde96253e80a8aa2"
 };
 
-// INIT
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const storage = getStorage(app);
-const db = getFirestore(app);
+let db, storage, auth;
 
-// LOGIN ẨN DANH
-signInAnonymously(auth)
-  .then(() => console.log("Đăng nhập ẩn danh OK"))
-  .catch(err => console.error("Auth lỗi:", err));
+try {
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    storage = getStorage(app);
+    auth = getAuth(app);
 
-// UPLOAD
-window.uploadImages = async () => {
-  const files = document.getElementById("fileInput").files;
-  const preview = document.getElementById("preview");
+    await signInAnonymously(auth);
+    console.log("Firebase OK");
 
-  if (!files.length) return alert("Chọn ảnh trước!");
+    loadData();
 
-  let urls = [];
+} catch (e) {
+    console.error("Firebase lỗi:", e);
+    document.getElementById("grid").innerText = "Lỗi kết nối Firebase!";
+}
 
-  for (const file of files) {
-    try {
-      const fileName = `img_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-      const storageRef = ref(storage, `properties/${fileName}`);
+// LOAD DATA
+function loadData() {
+    const q = query(collection(db, "properties"));
 
-      console.log("Đang upload:", fileName);
+    onSnapshot(q, snap => {
+        let html = "";
 
-      const snapshot = await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(snapshot.ref);
+        snap.forEach(doc => {
+            const d = doc.data();
+            html += `
+                <div class="property-card bg-white p-4 mb-3 rounded shadow">
+                    <img src="${d.images?.[0] || ''}" style="width:100%;height:150px;object-fit:cover">
+                    <h3>${d.title || ''}</h3>
+                    <p>${d.price || ''}</p>
+                </div>
+            `;
+        });
 
-      urls.push(url);
+        document.getElementById("grid").innerHTML = html || "Chưa có dữ liệu";
+        lucide.createIcons();
+    });
+}
 
-      preview.innerHTML += `<img src="${url}" width="120">`;
+// ADMIN UI
+window.openAdmin = () => {
+    const pass = prompt("Mã:");
+    if(pass === "2110") document.getElementById("admin").style.display = "block";
+};
+window.closeAdmin = () => document.getElementById("admin").style.display = "none";
 
-    } catch (err) {
-      console.error("UPLOAD ERROR:", err);
-      alert("Lỗi upload: " + err.message);
+// SAVE DATA
+window.save = async () => {
+    const text = document.getElementById("text").value;
+    const files = document.getElementById("file").files;
+
+    if(!text) return alert("Nhập nội dung!");
+
+    let urls = [];
+
+    for (const file of files) {
+        try {
+            const name = "img_" + Date.now();
+            const storageRef = ref(storage, "properties/" + name);
+
+            const snap = await uploadBytes(storageRef, file);
+            const url = await getDownloadURL(snap.ref);
+
+            urls.push(url);
+
+        } catch(e) {
+            console.error(e);
+            alert("Lỗi upload: " + e.message);
+        }
     }
-  }
 
-  // Lưu Firestore
-  try {
-    await addDoc(collection(db, "testUploads"), {
-      images: urls,
-      createdAt: serverTimestamp()
+    await addDoc(collection(db, "properties"), {
+        title: text.split("\n")[0],
+        price: text.match(/[\d.]+tr/i)?.[0] || "Liên hệ",
+        images: urls,
+        createdAt: serverTimestamp()
     });
 
-    alert("Upload + lưu DB thành công 🎉");
-
-  } catch (err) {
-    console.error("Firestore ERROR:", err);
-  }
+    alert("Đăng thành công!");
 };
 </script>
 
