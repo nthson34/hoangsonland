@@ -34,18 +34,19 @@
         window.storage = storage;
         window.collectionPath = ['artifacts', appId, 'public', 'data', 'properties'];
 
-        // Auth handling
-        const initAuth = async () => {
-            try {
-                await signInAnonymously(auth);
-            } catch (error) {
-                console.error("Auth Error:", error);
-            }
-        };
-        initAuth();
+        // Đảm bảo login trước khi làm bất cứ việc gì
+        signInAnonymously(auth).then(() => {
+            console.log("Đã đăng nhập ẩn danh thành công");
+        }).catch(error => {
+            console.error("Lỗi đăng nhập:", error);
+        });
 
         onAuthStateChanged(auth, (user) => {
             window.currentUser = user;
+            const statusEl = document.getElementById('authStatusIndicator');
+            if (statusEl) {
+                statusEl.innerHTML = user ? '<span class="text-green-500">● Sẵn sàng</span>' : '<span class="text-red-500">● Đang kết nối...</span>';
+            }
         });
     </script>
 
@@ -59,11 +60,10 @@
         .admin-modal { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
         .progress-bar { transition: width 0.3s ease; }
     </style>
 </head>
-<body class="bg-white text-slate-900">
+<body class="bg-slate-50 text-slate-900">
 
     <!-- Navigation -->
     <nav class="glass-nav fixed top-0 w-full z-50 border-b border-slate-100">
@@ -72,10 +72,10 @@
                 <div class="w-8 h-8 bg-blue-700 rounded-lg flex items-center justify-center text-white shadow-lg">
                     <i data-lucide="building-2" class="w-5 h-5"></i>
                 </div>
-                <span class="hidden sm:block text-lg font-extrabold tracking-tight text-slate-900 uppercase">Hoàng Sơn Land</span>
+                <span class="text-lg font-extrabold tracking-tight text-slate-900 uppercase">Hoàng Sơn Land</span>
             </div>
             
-            <div class="flex items-center gap-4 text-sm font-bold text-slate-600">
+            <div class="flex items-center gap-6 text-sm font-bold text-slate-600">
                 <a href="#" class="hover:text-blue-700 transition">Trang chủ</a>
                 <button onclick="checkAdminPassword()" class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition border border-blue-100">
                     <i data-lucide="lock" class="w-3.5 h-3.5"></i> Admin
@@ -85,89 +85,117 @@
     </nav>
 
     <!-- Hero -->
-    <section class="pt-24 pb-8 bg-white">
-        <div class="max-w-7xl mx-auto px-6 text-center lg:text-left flex flex-col lg:flex-row items-center gap-10">
-            <div class="lg:w-1/2 space-y-6">
-                <h1 class="text-5xl lg:text-7xl font-serif text-slate-900 leading-tight">Nhà Thuê <br><span class="text-blue-700">Chuyên Nghiệp</span></h1>
-                <p class="text-slate-500 max-w-lg mx-auto lg:mx-0">Hệ thống quản lý và tìm kiếm nhà thuê uy tín nhất Cần Thơ. Liên hệ ngay để được tư vấn miễn phí.</p>
-                <div class="flex justify-center lg:justify-start gap-4">
-                    <a href="tel:0901026345" class="bg-blue-700 text-white px-8 py-4 rounded-2xl font-bold shadow-xl shadow-blue-100 hover:scale-105 transition-transform">0901 026 345</a>
+    <section class="pt-32 pb-12 bg-white">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center gap-12">
+            <div class="lg:w-1/2 space-y-8 text-center lg:text-left">
+                <div class="inline-block px-4 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-bold uppercase tracking-widest">Cần Thơ Real Estate</div>
+                <h1 class="text-5xl lg:text-7xl font-serif text-slate-900 leading-tight">Nhà Thuê <br><span class="text-blue-700 italic">Chuyên Nghiệp</span></h1>
+                <p class="text-slate-500 text-lg leading-relaxed max-w-lg mx-auto lg:mx-0">Hoàng Sơn 0901 026 345 - Đồng hành cùng bạn tìm kiếm không gian sống lý tưởng.</p>
+                <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
+                    <a href="tel:0901026345" class="bg-blue-700 text-white px-8 py-4 rounded-2xl font-bold shadow-xl shadow-blue-200 hover:bg-blue-800 transition transform hover:-translate-y-1">Liên hệ: 0901 026 345</a>
+                    <a href="#properties" class="bg-white border border-slate-200 text-slate-900 px-8 py-4 rounded-2xl font-bold hover:bg-slate-50 transition">Xem danh sách</a>
                 </div>
             </div>
-            <div class="lg:w-1/2 w-full px-4">
-                <div class="aspect-video rounded-[2.5rem] overflow-hidden shadow-2xl">
-                    <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=1200" class="w-full h-full object-cover">
+            <div class="lg:w-1/2 w-full">
+                <div class="relative">
+                    <div class="absolute -inset-4 bg-blue-100/50 rounded-[3rem] blur-2xl -z-10"></div>
+                    <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=1200" class="w-full h-[400px] lg:h-[550px] object-cover rounded-[2.5rem] shadow-2xl">
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Admin Modal -->
+    <!-- Admin Panel -->
     <div id="adminModal" class="hidden fixed inset-0 z-[100] admin-modal flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-5xl rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+        <div class="bg-white w-full max-w-6xl rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
             <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-                <h2 class="text-xl font-bold flex items-center gap-2">
-                    <i data-lucide="cloud-upload" class="text-blue-600"></i> Firebase Storage Upload
-                </h2>
+                <div class="flex items-center gap-4">
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <i data-lucide="layout-dashboard" class="text-blue-600"></i> Quản lý tin đăng
+                    </h2>
+                    <div id="authStatusIndicator" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white border border-slate-200 uppercase"></div>
+                </div>
                 <button onclick="closeAdmin()" class="p-2 hover:bg-slate-200 rounded-full transition"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
-            <div class="p-6 overflow-y-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="p-8 overflow-y-auto grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <!-- Cột trái: Form đăng bài -->
                 <div class="space-y-6">
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Nội dung Facebook</label>
-                        <textarea id="fbInput" rows="6" class="w-full p-4 rounded-2xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-slate-50" placeholder="Dán văn bản quảng cáo vào đây..."></textarea>
+                        <label class="block text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest">Nội dung từ Facebook</label>
+                        <textarea id="fbInput" rows="8" class="w-full p-5 rounded-2xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-slate-50 leading-relaxed" placeholder="Dán nội dung bài đăng chuẩn của Sơn vào đây..."></textarea>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Hình ảnh (Firebase Storage - Nhanh & Ổn định)</label>
-                        <div class="space-y-3">
-                            <div id="imagePreviewContainer" class="hidden flex gap-2 overflow-x-auto py-2 hide-scrollbar"></div>
-                            
-                            <div id="uploadProgressContainer" class="hidden w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                <div id="uploadProgressBar" class="progress-bar w-0 h-full bg-blue-600"></div>
-                            </div>
-
-                            <label class="cursor-pointer group block bg-white hover:bg-blue-50 border-2 border-dashed border-slate-200 hover:border-blue-300 rounded-2xl p-8 text-center transition">
-                                <input type="file" id="fileInput" class="hidden" accept="image/*" multiple onchange="handleFirebaseUpload(this)">
-                                <div class="flex flex-col items-center">
-                                    <i data-lucide="image" class="w-8 h-8 text-slate-400 group-hover:text-blue-500 mb-2"></i>
-                                    <span class="text-sm font-bold text-slate-600 group-hover:text-blue-700" id="uploadStatus">Chọn nhiều ảnh để tải lên trực tiếp</span>
-                                    <span class="text-[10px] text-slate-400 mt-1">Hệ thống Google cực nhanh</span>
-                                </div>
-                            </label>
+                    <div class="space-y-4">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest">Hình ảnh thực tế (Firebase Storage)</label>
+                        
+                        <div id="imagePreviewContainer" class="hidden grid grid-cols-4 gap-2 py-2"></div>
+                        
+                        <div id="uploadProgressContainer" class="hidden w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div id="uploadProgressBar" class="progress-bar w-0 h-full bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.5)]"></div>
                         </div>
+
+                        <label class="cursor-pointer group block bg-white hover:bg-blue-50 border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-3xl p-10 text-center transition-all">
+                            <input type="file" id="fileInput" class="hidden" accept="image/*" multiple onchange="handleFirebaseUpload(this)">
+                            <div class="flex flex-col items-center">
+                                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                                    <i data-lucide="cloud-upload" class="w-6 h-6"></i>
+                                </div>
+                                <span class="text-sm font-bold text-slate-700" id="uploadStatus">Bấm để chọn nhiều ảnh nhà</span>
+                                <p class="text-[10px] text-slate-400 mt-2 italic">Tải lên hệ thống Google Cloud an toàn & nhanh chóng</p>
+                            </div>
+                        </label>
                     </div>
 
-                    <button onclick="processAI()" id="btnProcess" class="w-full bg-blue-700 text-white py-4 rounded-2xl font-bold hover:bg-blue-800 transition flex items-center justify-center gap-2 shadow-lg disabled:opacity-50">
-                        <i data-lucide="send" class="w-4 h-4"></i> ĐĂNG BÀI NGAY
+                    <button onclick="processAI()" id="btnProcess" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-bold hover:bg-blue-800 transition flex items-center justify-center gap-3 shadow-xl shadow-blue-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i data-lucide="check-circle" class="w-5 h-5"></i> XÁC NHẬN ĐĂNG BÀI
                     </button>
                 </div>
 
-                <div class="bg-slate-50 rounded-3xl p-6 border border-slate-100 flex flex-col">
-                    <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2 text-xs uppercase tracking-widest">
-                        <i data-lucide="database" class="w-4 h-4"></i> Đã đăng gần đây
-                    </h3>
-                    <div id="quickManageList" class="space-y-3 overflow-y-auto flex-1 pr-2 max-h-[400px]">
-                        <div class="text-center py-10 text-slate-400 text-xs italic">Đang tải danh sách...</div>
+                <!-- Cột phải: Quản lý nhanh -->
+                <div class="bg-slate-50 rounded-[2rem] p-6 border border-slate-100 flex flex-col">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-bold text-slate-800 text-xs uppercase tracking-widest flex items-center gap-2">
+                            <i data-lucide="list-checks" class="w-4 h-4 text-blue-600"></i> Tin đang hiển thị
+                        </h3>
+                    </div>
+                    <div id="quickManageList" class="space-y-3 overflow-y-auto flex-1 pr-2 max-h-[500px] hide-scrollbar">
+                        <div class="text-center py-20 text-slate-400 text-xs animate-pulse">Đang tải dữ liệu...</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Properties Section -->
-    <section id="properties" class="max-w-7xl mx-auto px-6 py-12">
-        <div class="flex items-center justify-between mb-10">
-            <h2 class="text-3xl font-serif text-slate-900">Danh sách nhà thuê</h2>
-            <div id="propCountBadge" class="bg-blue-600 text-white px-4 py-1.5 rounded-full font-bold text-xs">0 Căn</div>
+    <!-- Properties Grid -->
+    <section id="properties" class="max-w-7xl mx-auto px-6 py-20">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+            <div>
+                <h2 class="text-4xl font-serif text-slate-900 mb-2">Nhà Thuê Mới Nhất</h2>
+                <p class="text-slate-500 text-sm">Cập nhật liên tục các căn hộ, nhà phố giá tốt tại Cần Thơ</p>
+            </div>
+            <div id="propCountBadge" class="bg-blue-700 text-white px-6 py-2 rounded-full font-bold text-xs shadow-lg shadow-blue-100 flex items-center gap-2">
+                <i data-lucide="home" class="w-3.5 h-3.5"></i> <span>0</span> Căn
+            </div>
         </div>
-        <div id="propertyGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        <div id="propertyGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10"></div>
     </section>
 
-    <footer class="bg-slate-950 text-white py-12 text-center">
-        <p class="text-blue-500 font-bold tracking-widest uppercase">Hoàng Sơn Land © 2024</p>
-        <p class="text-slate-600 text-xs mt-2">Dịch vụ nhà thuê chuyên nghiệp Cần Thơ</p>
+    <footer class="bg-slate-900 text-white py-16 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="text-center md:text-left space-y-2">
+                <p class="text-2xl font-serif font-bold text-blue-400">Hoàng Sơn Land</p>
+                <p class="text-slate-500 text-xs">Chuyên ký gửi, cho thuê nhà đất Cần Thơ</p>
+            </div>
+            <div class="flex gap-6">
+                <a href="tel:0901026345" class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-blue-600 transition">
+                    <i data-lucide="phone" class="w-5 h-5"></i>
+                </a>
+                <a href="#" class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-blue-600 transition">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                </a>
+            </div>
+        </div>
     </footer>
 
     <script type="module">
@@ -178,19 +206,24 @@
         let currentUploadedUrls = [];
 
         window.checkAdminPassword = function() {
-            const pass = prompt("Mật mã Admin:");
+            const pass = prompt("Nhập mật mã quản trị:");
             if (pass === "2110") document.getElementById('adminModal').classList.remove('hidden');
-            else if (pass !== null) alert("Sai mật khẩu!");
+            else if (pass !== null) alert("Mật khẩu không đúng!");
         };
 
         window.closeAdmin = function() {
             document.getElementById('adminModal').classList.add('hidden');
         };
 
-        // FIREBASE STORAGE UPLOAD (New & Faster)
+        // FIREBASE STORAGE UPLOAD (Sửa lỗi quyền truy cập và đồng bộ)
         window.handleFirebaseUpload = async function(input) {
             const files = Array.from(input.files);
-            if (files.length === 0 || !window.currentUser) return;
+            if (files.length === 0) return;
+            
+            if (!window.currentUser) {
+                alert("Hệ thống đang kết nối, vui lòng đợi 3 giây rồi thử lại!");
+                return;
+            }
 
             const statusText = document.getElementById('uploadStatus');
             const progressBar = document.getElementById('uploadProgressBar');
@@ -199,7 +232,7 @@
             const btn = document.getElementById('btnProcess');
 
             btn.disabled = true;
-            statusText.innerText = `Đang tải ${files.length} ảnh...`;
+            statusText.innerText = `Chờ chút, đang tải ${files.length} ảnh lên...`;
             progressContainer.classList.remove('hidden');
             previewContainer.classList.remove('hidden');
             previewContainer.innerHTML = '';
@@ -208,9 +241,10 @@
             let count = 0;
             for (const file of files) {
                 try {
-                    // Create unique path: artifacts/appId/public/images/timestamp_filename
-                    const fileName = `${Date.now()}_${file.name}`;
-                    const storageRef = ref(window.storage, `artifacts/hoang-son-land-final/public/images/${fileName}`);
+                    // Tạo tên file duy nhất để tránh trùng lặp
+                    const ext = file.name.split('.').pop();
+                    const fileName = `prop_${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+                    const storageRef = ref(window.storage, `properties/${fileName}`);
                     
                     const snapshot = await uploadBytes(storageRef, file);
                     const url = await getDownloadURL(snapshot.ref);
@@ -218,24 +252,26 @@
                     currentUploadedUrls.push(url);
                     count++;
                     
-                    // Update progress
+                    // Cập nhật % thanh tiến trình
                     const percent = (count / files.length) * 100;
                     progressBar.style.width = `${percent}%`;
 
-                    // Add preview
-                    const img = document.createElement('img');
-                    img.src = url;
-                    img.className = "w-24 h-24 object-cover rounded-2xl border border-slate-200 flex-shrink-0 shadow-sm";
-                    previewContainer.appendChild(img);
+                    // Hiển thị ảnh xem trước
+                    const div = document.createElement('div');
+                    div.className = "relative aspect-square";
+                    div.innerHTML = `<img src="${url}" class="w-full h-full object-cover rounded-xl border border-slate-200">`;
+                    previewContainer.appendChild(div);
 
                 } catch (error) {
-                    console.error("Upload error:", error);
+                    console.error("Lỗi tải ảnh:", error);
+                    alert("Lỗi: " + (error.code === 'storage/unauthorized' ? "Bạn cần cấu hình Rules trong Firebase Storage cho phép 'write'!" : error.message));
+                    break;
                 }
             }
 
-            statusText.innerText = `Đã tải xong ${currentUploadedUrls.length} ảnh! ✅`;
+            statusText.innerText = `Đã sẵn sàng với ${currentUploadedUrls.length} ảnh! ✅`;
             btn.disabled = false;
-            setTimeout(() => progressContainer.classList.add('hidden'), 2000);
+            setTimeout(() => { if(currentUploadedUrls.length > 0) progressContainer.classList.add('hidden'); }, 3000);
         };
 
         function initDataListener() {
@@ -246,101 +282,129 @@
                 snapshot.forEach(d => properties.push({ id: d.id, ...d.data() }));
                 properties.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
                 render();
+            }, (error) => {
+                console.error("Lỗi Firestore:", error);
             });
         }
 
         function render() {
             const grid = document.getElementById('propertyGrid');
             const list = document.getElementById('quickManageList');
-            document.getElementById('propCountBadge').innerText = `${properties.length} Căn`;
+            document.querySelector('#propCountBadge span').innerText = properties.length;
 
-            grid.innerHTML = properties.map(p => {
-                const imgs = p.images || [p.image];
-                const mainImg = imgs[0] || "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200";
-                return `
-                    <div class="property-card bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 flex flex-col">
-                        <div class="h-64 relative group">
-                            <img src="${mainImg}" class="w-full h-full object-cover">
-                            ${imgs.length > 1 ? `<div class="absolute bottom-4 right-4 bg-black/40 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full">+${imgs.length} Ảnh</div>` : ''}
-                            <div class="absolute top-4 left-4 bg-white/95 backdrop-blur px-4 py-1.5 rounded-xl text-blue-700 font-extrabold shadow-lg text-sm">${p.price}</div>
-                        </div>
-                        <div class="p-8 flex flex-col flex-1">
-                            <h3 class="font-bold text-slate-900 text-lg mb-4 line-clamp-2 uppercase leading-tight">${p.title}</h3>
-                            <div class="space-y-3 mb-8 text-slate-500 text-sm">
-                                <p class="flex items-center gap-3"><i data-lucide="home" class="w-4 h-4 text-blue-500"></i> ${p.structure}</p>
-                                <p class="flex items-center gap-3"><i data-lucide="navigation" class="w-4 h-4 text-blue-500"></i> ${p.street}</p>
+            if (properties.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-20 text-slate-400 italic">Chưa có bài đăng nào.</div>`;
+            } else {
+                grid.innerHTML = properties.map(p => {
+                    const imgs = p.images || [p.image];
+                    const mainImg = imgs[0] || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1200";
+                    return `
+                        <div class="property-card bg-white rounded-[2.5rem] overflow-hidden border border-slate-100 flex flex-col shadow-sm">
+                            <div class="h-64 relative overflow-hidden">
+                                <img src="${mainImg}" class="w-full h-full object-cover transform hover:scale-110 transition duration-700">
+                                ${imgs.length > 1 ? `<div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur text-slate-900 text-[10px] font-bold px-3 py-1.5 rounded-full shadow-sm">+${imgs.length} Ảnh</div>` : ''}
+                                <div class="absolute top-4 left-4 bg-blue-700 text-white px-4 py-2 rounded-xl font-extrabold shadow-lg text-sm">${p.price}</div>
                             </div>
-                            <div class="mt-auto flex items-center justify-between pt-6 border-t border-slate-50">
-                                <span class="text-xs font-bold text-slate-400">Cọc: ${p.deposit}</span>
-                                <a href="tel:0901026345" class="bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold text-xs hover:bg-blue-700 transition flex items-center gap-2">
-                                    <i data-lucide="phone" class="w-3.5 h-3.5"></i> Liên hệ
-                                </a>
+                            <div class="p-8 flex flex-col flex-1">
+                                <h3 class="font-bold text-slate-900 text-lg mb-4 line-clamp-2 uppercase leading-tight">${p.title}</h3>
+                                <div class="space-y-3 mb-8 text-slate-500 text-sm">
+                                    <p class="flex items-start gap-3"><i data-lucide="layout" class="w-4 h-4 text-blue-600 mt-0.5"></i> ${p.structure}</p>
+                                    <p class="flex items-start gap-3"><i data-lucide="map-pin" class="w-4 h-4 text-blue-600 mt-0.5"></i> ${p.street}</p>
+                                </div>
+                                <div class="mt-auto flex items-center justify-between pt-6 border-t border-slate-50">
+                                    <div class="flex flex-col">
+                                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Tiền cọc</span>
+                                        <span class="text-xs font-bold text-slate-800">${p.deposit}</span>
+                                    </div>
+                                    <a href="tel:0901026345" class="bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold text-xs hover:bg-blue-700 transition flex items-center gap-2">
+                                        <i data-lucide="phone-forwarded" class="w-3.5 h-3.5"></i> Liên hệ
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                }).join('');
+            }
 
             list.innerHTML = properties.map(p => `
-                <div class="flex items-center gap-3 bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
-                    <img src="${(p.images && p.images[0]) || p.image}" class="w-12 h-12 rounded-xl object-cover">
+                <div class="flex items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <img src="${(p.images && p.images[0]) || p.image}" class="w-14 h-14 rounded-xl object-cover bg-slate-100 border border-slate-100">
                     <div class="flex-1 min-w-0">
-                        <p class="text-xs font-bold text-slate-800 truncate">${p.title}</p>
-                        <p class="text-[10px] text-blue-600 font-bold">${p.price}</p>
+                        <p class="text-[11px] font-bold text-slate-900 truncate uppercase">${p.title}</p>
+                        <p class="text-[10px] text-blue-600 font-extrabold mt-1">${p.price} • ${p.deposit}</p>
                     </div>
-                    <button onclick="deleteItem('${p.id}')" class="p-2 text-red-400 hover:bg-red-50 rounded-xl transition">
+                    <button onclick="deleteItem('${p.id}')" class="w-10 h-10 flex items-center justify-center text-red-400 hover:bg-red-50 hover:text-red-600 rounded-xl transition">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
                 </div>
             `).join('');
+            
             if (window.lucide) window.lucide.createIcons();
         }
 
         window.deleteItem = async (id) => {
-            if(confirm("Bạn có chắc chắn muốn xóa bài đăng này?")) {
-                await deleteDoc(doc(window.db, ...window.collectionPath, id));
+            if(confirm("Xác nhận xóa bài đăng này vĩnh viễn?")) {
+                try {
+                    await deleteDoc(doc(window.db, ...window.collectionPath, id));
+                } catch (e) {
+                    alert("Không thể xóa: " + e.message);
+                }
             }
         };
 
         window.processAI = async () => {
             const input = document.getElementById('fbInput').value;
-            if(!input.trim()) return alert("Vui lòng nhập nội dung!");
+            if(!input.trim()) return alert("Vui lòng dán nội dung bài đăng!");
             
             const btn = document.getElementById('btnProcess');
-            btn.disabled = true; btn.innerText = 'Đang đăng bài...';
+            btn.disabled = true; btn.innerText = 'Đang xử lý dữ liệu...';
             
             const lines = input.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-            const titleLine = lines.find(l => l.includes('NHÀ')) || lines[0];
-            const price = (input.match(/([\d.]+tr)/i)?.[0] || "LIÊN HỆ").toUpperCase();
             
-            const getField = (keys) => {
-                const l = lines.find(line => keys.some(k => line.toLowerCase().includes(k.toLowerCase())));
-                return l ? l.split(/[:-]/).slice(1).join(':').trim() : "Liên hệ 0901026345";
+            // Tìm dòng tiêu đề (Thường là dòng có chữ NHÀ)
+            const titleLine = lines.find(l => l.toUpperCase().includes('NHÀ')) || lines[0];
+            
+            // Bóc tách giá (Tìm số kèm chữ tr)
+            const priceMatch = input.match(/([\d.]+tr)/i);
+            const price = priceMatch ? priceMatch[0].toUpperCase() : "LIÊN HỆ";
+            
+            // Bóc tách cọc
+            const depositMatch = input.match(/Cọc:\s*([\d\s\w\d]+)/i);
+            const deposit = depositMatch ? depositMatch[0].replace('Cọc:', '').trim() : "02 tháng";
+
+            const getField = (keywords) => {
+                const l = lines.find(line => keywords.some(k => line.toLowerCase().includes(k.toLowerCase())));
+                if (!l) return "Liên hệ 0901 026 345";
+                // Lấy phần sau dấu : hoặc -
+                const parts = l.split(/[:-]/);
+                return parts.length > 1 ? parts.slice(1).join(':').trim() : l.trim();
             };
 
             const newProp = {
                 title: titleLine.replace('CG - ', '').trim(),
                 price: price,
-                deposit: input.match(/Cọc:\s*([\d\s\w]+)/i)?.[1] || "02 tháng",
-                structure: getField(['Kết cấu', 'Mô tả']),
-                street: getField(['Lộ giới', 'Hẻm', 'Đường']),
-                images: currentUploadedUrls.length > 0 ? currentUploadedUrls : ["https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200"],
-                image: currentUploadedUrls[0] || "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1200",
+                deposit: deposit,
+                structure: getField(['Kết cấu', 'Mô tả', 'Diện tích']),
+                street: getField(['Lộ giới', 'Hẻm', 'Đường', 'Địa chỉ']),
+                images: currentUploadedUrls.length > 0 ? currentUploadedUrls : ["https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1200"],
+                image: currentUploadedUrls[0] || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=1200",
                 createdAt: serverTimestamp()
             };
 
             try {
                 await addDoc(collection(window.db, ...window.collectionPath), newProp);
-                // Reset
+                // Reset form
                 document.getElementById('fbInput').value = '';
                 document.getElementById('imagePreviewContainer').innerHTML = '';
                 document.getElementById('imagePreviewContainer').classList.add('hidden');
-                document.getElementById('uploadStatus').innerText = "Chọn nhiều ảnh để tải lên trực tiếp";
+                document.getElementById('uploadStatus').innerText = "Bấm để chọn nhiều ảnh nhà";
                 currentUploadedUrls = [];
-                alert("Đã đăng thành công lên hệ thống!");
+                alert("Đã đăng bài thành công!");
                 closeAdmin();
+            } catch (e) {
+                alert("Lỗi Firestore: " + e.message);
             } finally {
-                btn.disabled = false; btn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> ĐĂNG BÀI NGAY';
+                btn.disabled = false; btn.innerHTML = '<i data-lucide="check-circle" class="w-5 h-5"></i> XÁC NHẬN ĐĂNG BÀI';
             }
         };
 
