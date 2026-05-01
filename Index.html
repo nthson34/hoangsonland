@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoàng Sơn Nhà Thuê - Chuyên Nghiệp & Tận Tâm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // Cấu hình Firebase của Hoàng Sơn Land
+        const firebaseConfig = {
+            apiKey: "AIzaSyDGQqB3NtdO_sDHAqS3l9VXthixcafCTe4",
+            authDomain: "hoangsonland-cfea5.firebaseapp.com",
+            projectId: "hoangsonland-cfea5",
+            storageBucket: "hoangsonland-cfea5.firebasestorage.app",
+            messagingSenderId: "544947429383",
+            appId: "1:544947429383:web:31385cfde96253e80a8aa2",
+            measurementId: "G-5QX699Y2VL"
+        };
+
+        // Khởi tạo Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = "hoang-son-land-final"; // Định danh cố định cho dự án của bạn
+
+        // Biến toàn cục để sử dụng trong script bên dưới
+        window.db = db;
+        window.collectionPath = ['artifacts', appId, 'public', 'data', 'properties'];
+
+        // Đăng nhập vô danh để có quyền đọc/ghi
+        signInAnonymously(auth).then(() => {
+            console.log("Đã kết nối Cloud Hoàng Sơn thành công!");
+        }).catch(error => {
+            console.error("Lỗi kết nối Firebase:", error);
+        });
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap');
+        :root { --primary: #1d4ed8; --secondary: #f97316; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .hero-gradient { background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); }
+        .btn-shadow { box-shadow: 0 4px 14px 0 rgba(29, 78, 216, 0.39); }
+        .property-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .property-card:hover { transform: translateY(-10px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
+        .admin-glow { border: 1px solid rgba(59, 130, 246, 0.5); box-shadow: 0 0 20px rgba(59, 130, 246, 0.1); }
+    </style>
+</head>
+<body class="bg-white text-slate-900">
+
+    <!-- Navigation -->
+    <nav class="glass-nav fixed top-0 w-full z-50 border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-blue-700 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <i data-lucide="building-2" class="w-6 h-6"></i>
+                </div>
+                <span class="text-xl font-extrabold tracking-tight text-slate-900 uppercase">Hoàng Sơn</span>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
+                <a href="#" class="hover:text-blue-700 transition">Trang chủ</a>
+                <a href="#properties" class="hover:text-blue-700 transition">Danh sách nhà</a>
+                <button onclick="toggleAdmin()" class="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition border border-blue-100 font-bold">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    Đăng tin AI
+                </button>
+            </div>
+
+            <a href="tel:0901026345" class="bg-blue-700 text-white px-6 py-2.5 rounded-full text-sm font-bold btn-shadow hover:bg-blue-800 transition flex items-center gap-2">
+                <i data-lucide="phone" class="w-4 h-4"></i>
+                0901 026 345
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient pt-32 pb-20 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center gap-12">
+            <div class="lg:w-1/2 space-y-8">
+                <div class="space-y-4 text-center lg:text-left">
+                    <p class="text-orange-600 font-bold uppercase tracking-[0.2em] text-sm">Dịch vụ nhà thuê Cần Thơ</p>
+                    <h1 class="text-5xl lg:text-7xl font-serif text-slate-900 leading-tight">Hoàng Sơn Nhà Thuê</h1>
+                    <p class="text-lg text-slate-600 leading-relaxed max-w-xl mx-auto lg:mx-0">
+                        Hệ thống cập nhật nhà thuê nhanh chóng và chuẩn xác nhất tại Cần Thơ. Chuyên nghiệp - Tận tâm - Uy tín.
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-4 pt-4 justify-center lg:justify-start">
+                    <a href="#properties" class="bg-blue-700 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-800 transition btn-shadow">
+                        Xem Danh Sách Nhà
+                    </a>
+                    <a href="https://zalo.me/0901026345" target="_blank" class="border-2 border-blue-700 text-blue-700 px-8 py-4 rounded-xl font-bold hover:bg-blue-50 transition">
+                        Zalo: 0901 026 345
+                    </a>
+                </div>
+            </div>
+            <div class="lg:w-1/2 relative">
+                <div class="relative rounded-[2rem] overflow-hidden shadow-2xl z-10">
+                    <img src="https://images.unsplash.com/photo-1600585154340-be6199f7c096?auto=format&fit=crop&q=80&w=1200" alt="Living Room" class="w-full h-[450px] object-cover">
+                </div>
+                <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-orange-100 rounded-full blur-3xl -z-0"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Admin Panel -->
+    <section id="adminPanel" class="hidden max-w-5xl mx-auto px-6 -mt-16 relative z-20">
+        <div class="bg-white rounded-3xl shadow-2xl p-8 border border-slate-100 admin-glow">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold flex items-center gap-2 text-slate-900">
+                        <i data-lucide="sparkles" class="text-blue-600 w-7 h-7"></i>
+                        Đăng Tin AI - Cloud Sync
+                    </h2>
+                    <p class="text-sm text-slate-500">Dán nội dung từ Facebook, hệ thống sẽ tự xử lý.</p>
+                </div>
+                <button onclick="toggleAdmin()" class="p-2 hover:bg-slate-100 rounded-full text-slate-400"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-4">
+                    <textarea id="fbInput" rows="8" class="w-full p-5 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-blue-500 focus:bg-white outline-none transition-all text-sm font-medium leading-relaxed" 
+                        placeholder="Dán bài đăng có mẫu: CG - GIÁ: 5.5tr... --- Kết cấu... --- Lộ giới..."></textarea>
+                    <button onclick="processAI()" id="btnProcess" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold hover:bg-blue-800 transition flex items-center justify-center gap-3 shadow-lg">
+                        <i data-lucide="upload-cloud" class="w-5 h-5"></i> Cập Nhật Lên Website
+                    </button>
+                </div>
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                    <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2 text-sm uppercase tracking-wider">
+                        <i data-lucide="list" class="w-4 h-4"></i> Nhà đã đăng
+                    </h3>
+                    <div id="quickManageList" class="space-y-2 max-h-[350px] overflow-y-auto pr-2"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Properties Section -->
+    <section id="properties" class="max-w-7xl mx-auto px-6 py-24">
+        <div class="mb-12 text-center lg:text-left">
+            <h2 class="text-4xl font-serif text-slate-900 mb-2">Danh Sách Nhà Cho Thuê</h2>
+            <div class="h-1.5 w-24 bg-blue-700 mx-auto lg:mx-0 rounded-full"></div>
+            <p class="text-slate-500 font-medium mt-4">Hiện có <span id="propCount" class="text-blue-700 font-bold">0</span> tin đăng trực tuyến</p>
+        </div>
+        <div id="propertyGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            <div class="col-span-full text-center py-20 text-slate-400 italic">Đang tải danh sách nhà từ Cloud...</div>
+        </div>
+    </section>
+
+    <footer class="bg-slate-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <div class="flex items-center justify-center gap-2 mb-4">
+                <i data-lucide="building-2" class="text-blue-500"></i>
+                <span class="text-xl font-bold uppercase tracking-widest">Hoàng Sơn Land</span>
+            </div>
+            <p class="text-slate-500 text-sm">© 2024 Dịch vụ nhà thuê Cần Thơ chuyên nghiệp.</p>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { collection, addDoc, onSnapshot, query, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        let properties = [];
+
+        window.toggleAdmin = function() {
+            document.getElementById('adminPanel').classList.toggle('hidden');
+            window.scrollTo({ top: document.getElementById('adminPanel').offsetTop - 100, behavior: 'smooth' });
+        };
+
+        function initDataListener() {
+            if (!window.db) return setTimeout(initDataListener, 500);
+            const q = query(collection(window.db, ...window.collectionPath));
+            
+            onSnapshot(q, (snapshot) => {
+                properties = [];
+                snapshot.forEach((doc) => {
+                    properties.push({ id: doc.id, ...doc.data() });
+                });
+                // Sắp xếp theo ngày mới nhất trong bộ nhớ
+                properties.sort((a, b) => new Date(b.date) - new Date(a.date));
+                renderProperties();
+                renderQuickManage();
+            }, (error) => {
+                console.error("Firestore Error:", error);
+            });
+        }
+
+        function renderProperties() {
+            const grid = document.getElementById('propertyGrid');
+            const count = document.getElementById('propCount');
+            count.innerText = properties.length;
+            
+            if(properties.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-400 italic">Hệ thống đang trống. Vui lòng thêm tin đăng mới.</div>`;
+                return;
+            }
+
+            grid.innerHTML = properties.map(p => `
+                <div class="property-card bg-white rounded-[2.5rem] overflow-hidden shadow-sm border border-slate-100 flex flex-col group">
+                    <div class="h-64 relative overflow-hidden">
+                        <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition duration-1000">
+                        <div class="absolute top-6 left-6 bg-white/95 backdrop-blur-md px-4 py-2 rounded-2xl font-bold text-blue-700 shadow-xl border border-blue-50 text-sm">
+                            ${p.price}
+                        </div>
+                    </div>
+                    <div class="p-8 flex-1 flex flex-col">
+                        <h3 class="text-lg font-bold text-slate-900 mb-4 uppercase line-clamp-2 leading-tight">${p.title}</h3>
+                        <div class="space-y-4 mb-8 text-sm text-slate-500">
+                            <div class="flex items-start gap-3">
+                                <div class="p-1.5 bg-blue-50 rounded-lg"><i data-lucide="layers" class="w-4 h-4 text-blue-600 shrink-0"></i></div>
+                                <span>${p.structure}</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="p-1.5 bg-blue-50 rounded-lg"><i data-lucide="map-pin" class="w-4 h-4 text-blue-600 shrink-0"></i></div>
+                                <span>${p.street}</span>
+                            </div>
+                        </div>
+                        <div class="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between">
+                            <div>
+                                <span class="block text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Tiền cọc</span>
+                                <span class="text-sm font-bold text-slate-700">${p.deposit}</span>
+                            </div>
+                            <a href="tel:0901026345" class="bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 hover:bg-blue-800 transition shadow-md">
+                                <i data-lucide="phone" class="w-3.5 h-3.5"></i> Gọi Hoàng Sơn
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        window.renderQuickManage = function() {
+            const list = document.getElementById('quickManageList');
+            list.innerHTML = properties.map(p => `
+                <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-100 shadow-sm hover:border-blue-200 transition">
+                    <span class="text-[11px] font-bold truncate max-w-[150px] text-slate-700">${p.title}</span>
+                    <button onclick="window.deleteProperty('${p.id}')" class="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `).join('');
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        window.deleteProperty = async function(docId) {
+            if(confirm("Xác nhận gỡ tin đăng này khỏi Website?")) {
+                await deleteDoc(doc(window.db, ...window.collectionPath, docId));
+            }
+        }
+
+        window.processAI = async function() {
+            const btn = document.getElementById('btnProcess');
+            const input = document.getElementById('fbInput').value;
+            if (!input.trim()) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="animate-spin" data-lucide="loader-2"></i> Đang đồng bộ Cloud...';
+            if (window.lucide) window.lucide.createIcons();
+
+            setTimeout(async () => {
+                const lines = input.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                
+                // Quy trình tách tin theo yêu cầu Hoàng Sơn
+                const titleLine = lines.find(l => l.includes('NHÀ') || l.length > 25) || "NHÀ CHO THUÊ CẦN THƠ";
+                
+                // Lấy giá: ưu tiên 5.5tr, loại bỏ chữ "Thương lượng"
+                const priceMatch = input.match(/([\d.]+tr)/i);
+                
+                const getSection = (kw) => {
+                    const line = lines.find(l => l.toLowerCase().includes(kw.toLowerCase()));
+                    if (!line) return "Liên hệ Hoàng Sơn: 0901 026 345";
+                    // Giữ lại định dạng sau dấu gạch đầu dòng hoặc dấu hai chấm
+                    return line.split(/[:-]/).slice(1).join(':').trim() || line;
+                };
+
+                const newProp = {
+                    title: titleLine.replace('CG - ', '').trim(),
+                    price: priceMatch ? priceMatch[0].toUpperCase() : "THỎA THUẬN",
+                    deposit: input.match(/Cọc:\s*([\d\s\w]+)/i)?.[1] || "02 tháng",
+                    structure: getSection('Kết cấu'),
+                    street: getSection('Lộ giới') || getSection('Hẻm'),
+                    image: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&q=80&w=800",
+                    date: new Date().toISOString()
+                };
+
+                try {
+                    await addDoc(collection(window.db, ...window.collectionPath), newProp);
+                    document.getElementById('fbInput').value = '';
+                    btn.disabled = false;
+                    btn.innerHTML = '<i data-lucide="upload-cloud" class="w-5 h-5"></i> Cập Nhật Lên Website';
+                    toggleAdmin();
+                    alert("✨ Đăng tin thành công! Website đã được cập nhật.");
+                } catch (e) {
+                    alert("Lỗi kết nối. Vui lòng kiểm tra Rules trên Firebase.");
+                    btn.disabled = false;
+                    btn.innerHTML = '<i data-lucide="upload-cloud" class="w-5 h-5"></i> Cập Nhật Lên Website';
+                }
+            }, 1000);
+        }
+
+        initDataListener();
+        window.addEventListener('load', () => { if (window.lucide) window.lucide.createIcons(); });
+    </script>
+</body>
+</html>
