@@ -2,8 +2,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hoàng Sơn Nhà Thuê - Chuyên Nghiệp & Tận Tâm</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hoàng Sơn Nhà Thuê - Cần Thơ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     
@@ -34,304 +34,245 @@
         window.storage = storage;
         window.collectionPath = ['artifacts', appId, 'public', 'data', 'properties'];
 
-        // Đảm bảo login ẩn danh
         signInAnonymously(auth).catch(console.error);
-
-        onAuthStateChanged(auth, (user) => {
-            window.currentUser = user;
-            const indicator = document.getElementById('authStatus');
-            if (indicator) {
-                indicator.innerHTML = user ? 
-                    '<span class="flex items-center gap-1.5 text-green-600"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Cloud Sync On</span>' : 
-                    '<span class="flex items-center gap-1.5 text-amber-600">Đang kết nối...</span>';
-            }
-        });
+        onAuthStateChanged(auth, (user) => { window.currentUser = user; });
     </script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Playfair+Display:wght@700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         .font-serif { font-family: 'Playfair Display', serif; }
-        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
-        .btn-primary { background: #1d4ed8; transition: all 0.3s ease; }
-        .btn-primary:hover { background: #1e40af; transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(29, 78, 216, 0.4); }
-        .admin-overlay { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px); }
-        .property-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #f1f5f9; }
-        .property-card:hover { transform: translateY(-8px); border-color: #dbeafe; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05); }
+        .glass-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        .admin-modal { background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); }
+        .property-card { border: 1px solid #f1f5f9; border-radius: 24px; overflow: hidden; background: white; }
+        /* Tối ưu mobile */
+        @media (max-width: 640px) {
+            .hero-title { font-size: 2.8rem !important; line-height: 1.1 !important; }
+            .hero-desc { font-size: 0.95rem !important; }
+        }
     </style>
 </head>
-<body class="bg-[#fcfcfd] text-slate-900">
+<body class="bg-[#f8fafc] text-slate-900">
 
-    <!-- Header (Giống ảnh mẫu Sơn gửi) -->
+    <!-- Navigation -->
     <header class="glass-header fixed top-0 w-full z-[100] border-b border-slate-100">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <div class="w-10 h-10 bg-blue-700 rounded-xl flex items-center justify-center text-white">
-                    <i data-lucide="building-2" class="w-6 h-6"></i>
+                <div class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                    <i data-lucide="building-2" class="w-5 h-5"></i>
                 </div>
                 <div class="leading-none">
-                    <h1 class="text-xl font-extrabold tracking-tight uppercase">Hoàng Sơn</h1>
-                    <p class="text-[10px] text-slate-400 font-bold tracking-widest mt-0.5">NHÀ THUÊ CẦN THƠ</p>
+                    <h1 class="text-base font-extrabold tracking-tight uppercase">Hoàng Sơn</h1>
+                    <p class="text-[9px] text-slate-400 font-bold tracking-widest mt-0.5">NHÀ THUÊ CẦN THƠ</p>
                 </div>
             </div>
-
-            <nav class="hidden md:flex items-center gap-8 text-sm font-bold text-slate-600">
-                <a href="#" class="hover:text-blue-700 transition">Trang chủ</a>
-                <a href="#properties" class="hover:text-blue-700 transition">Danh sách nhà</a>
-                <button onclick="checkAdmin()" class="bg-blue-50 text-blue-700 px-4 py-2 rounded-full flex items-center gap-2 hover:bg-blue-100 transition">
-                    <i data-lucide="sparkles" class="w-4 h-4"></i> Đăng tin AI
-                </button>
-            </nav>
-
-            <a href="tel:0901026345" class="btn-primary text-white px-6 py-2.5 rounded-full font-bold text-sm flex items-center gap-2">
-                <i data-lucide="phone" class="w-4 h-4"></i> 0901 026 345
-            </a>
+            
+            <div class="flex items-center gap-2">
+                <button onclick="checkAdmin()" class="p-2 text-slate-400 hover:text-blue-600"><i data-lucide="user-cog" class="w-5 h-5"></i></button>
+                <a href="tel:0901026345" class="bg-blue-600 text-white px-4 py-2 rounded-full font-bold text-xs flex items-center gap-2">
+                    <i data-lucide="phone" class="w-3.5 h-3.5"></i> 0901 026 345
+                </a>
+            </div>
         </div>
     </header>
 
-    <!-- Hero Section (Theo phong cách ảnh Sơn cung cấp) -->
-    <section class="pt-40 pb-20 px-6">
-        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
-            <div class="lg:w-1/2 space-y-8">
-                <p class="text-orange-600 font-bold text-xs uppercase tracking-[0.2em]">Dịch vụ nhà thuê Cần Thơ</p>
-                <h2 class="text-6xl lg:text-7xl font-serif text-slate-900 leading-[1.1]">Hoàng Sơn <br>Nhà Thuê</h2>
-                <p class="text-slate-500 text-lg leading-relaxed max-w-lg">Tìm nhà thuê, phòng trọ, và mặt bằng kinh doanh chất lượng cao tại Cần Thơ. Dịch vụ chuyên nghiệp, giá cạnh tranh, hỗ trợ tận tâm.</p>
+    <!-- Hero -->
+    <section class="pt-28 pb-12 px-6 bg-white">
+        <div class="max-w-7xl mx-auto text-center lg:text-left flex flex-col lg:flex-row items-center gap-10">
+            <div class="lg:w-1/2 space-y-6">
+                <p class="text-orange-600 font-extrabold text-[10px] uppercase tracking-[0.2em]">Dịch vụ nhà thuê chuyên nghiệp</p>
+                <h2 class="hero-title text-5xl lg:text-7xl font-serif font-extrabold text-slate-900">Hoàng Sơn <br><span class="text-blue-600 italic">Nhà Thuê</span></h2>
+                <p class="hero-desc text-slate-500 text-base leading-relaxed max-w-md mx-auto lg:mx-0">Tìm nhà thuê, phòng trọ, mặt bằng chất lượng cao tại Cần Thơ. Hỗ trợ tận tâm, pháp lý rõ ràng.</p>
                 
-                <ul class="space-y-4">
-                    <li class="flex items-center gap-3 text-slate-600 font-medium">
-                        <i data-lucide="check" class="text-orange-500 w-5 h-5"></i> Hơn 100+ căn hộ, phòng trọ và mặt bằng
-                    </li>
-                    <li class="flex items-center gap-3 text-slate-600 font-medium">
-                        <i data-lucide="check" class="text-orange-500 w-5 h-5"></i> Tư vấn miễn phí, hỗ trợ 24/7
-                    </li>
-                    <li class="flex items-center gap-3 text-slate-600 font-medium">
-                        <i data-lucide="check" class="text-orange-500 w-5 h-5"></i> Giá thuê từ 1.5 triệu - 50 triệu/tháng
-                    </li>
-                </ul>
-
-                <div class="flex flex-wrap gap-4 pt-4">
-                    <button class="btn-primary text-white px-8 py-4 rounded-xl font-bold flex items-center gap-3">
+                <div class="flex flex-col gap-3 max-w-sm mx-auto lg:mx-0">
+                    <a href="tel:0901026345" class="bg-blue-600 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-xl shadow-blue-100">
                         <i data-lucide="phone-call" class="w-5 h-5"></i> Liên Hệ Ngay
-                    </button>
-                    <button class="border border-blue-200 text-blue-700 px-8 py-4 rounded-xl font-bold hover:bg-blue-50 transition">
+                    </a>
+                    <a href="https://zalo.me/0901026345" class="border border-blue-100 text-blue-700 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-blue-50 transition">
                         Zalo: 0901 026 345
-                    </button>
+                    </a>
+                </div>
+
+                <div class="pt-4 flex items-center justify-center lg:justify-start gap-6 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                    <span class="flex items-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4 text-green-500"></i> 100+ Căn</span>
+                    <span class="flex items-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4 text-green-500"></i> Uy tín</span>
+                    <span class="flex items-center gap-1.5"><i data-lucide="check-circle" class="w-4 h-4 text-green-500"></i> Tận tâm</span>
                 </div>
             </div>
-            <div class="lg:w-1/2 relative">
-                <div class="absolute -top-10 -left-10 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-50 -z-10"></div>
-                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200" class="w-full h-[550px] object-cover rounded-[3rem] shadow-2xl shadow-blue-900/10">
+            <div class="lg:w-1/2 w-full">
+                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200" class="w-full h-[300px] lg:h-[500px] object-cover rounded-[2.5rem] shadow-2xl">
             </div>
         </div>
     </section>
 
-    <!-- Admin Panel (Giống ảnh image_7335e2.png) -->
-    <div id="adminModal" class="hidden fixed inset-0 z-[200] admin-overlay flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-5xl rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center">
-                        <i data-lucide="wand-2" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-lg">Đăng Tin AI - Cloud Sync</h3>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Dán nội dung từ Facebook, hệ thống sẽ tự xử lý</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div id="authStatus" class="text-[10px] font-bold px-3 py-1 bg-slate-50 rounded-full border border-slate-100"></div>
-                    <button onclick="closeAdmin()" class="p-2 hover:bg-slate-100 rounded-full transition"><i data-lucide="x" class="w-5 h-5"></i></button>
-                </div>
+    <!-- Properties -->
+    <main id="properties" class="max-w-7xl mx-auto px-5 py-12">
+        <div class="flex items-center justify-between mb-8">
+            <h3 class="text-2xl font-serif font-bold">Danh sách mới</h3>
+            <div class="h-1 flex-1 mx-4 bg-slate-100 rounded-full"></div>
+        </div>
+        <div id="propGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </main>
+
+    <!-- Admin Modal -->
+    <div id="adminModal" class="hidden fixed inset-0 z-[200] admin-modal flex items-end sm:items-center justify-center">
+        <div class="bg-white w-full max-w-4xl rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="font-extrabold text-lg flex items-center gap-2"><i data-lucide="plus-circle" class="text-blue-600"></i> Đăng tin mới</h3>
+                <button onclick="closeAdmin()" class="p-2 bg-slate-50 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-
-            <div class="flex-1 overflow-y-auto p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Cột soạn thảo -->
-                <div class="lg:col-span-2 space-y-6">
-                    <div class="relative">
-                        <textarea id="fbInput" rows="10" class="w-full p-6 rounded-2xl border border-slate-100 bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition text-sm leading-relaxed" placeholder="Dán bài đăng có mẫu: CG - GIÁ: 5.5tr... --- Kết cấu... --- Lộ giới..."></textarea>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Hình ảnh thực tế</span>
-                            <span id="imgCount" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md font-bold">0 ảnh</span>
-                        </div>
-                        
-                        <div id="previewImgs" class="grid grid-cols-5 gap-2 hidden"></div>
-
-                        <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition">
-                            <input type="file" id="fileInp" class="hidden" multiple accept="image/*" onchange="uploadToStorage(this)">
-                            <i data-lucide="image-plus" class="w-8 h-8 text-slate-400 mb-2"></i>
-                            <span class="text-xs font-bold text-slate-500">Kéo thả hoặc chọn ảnh nhà</span>
-                        </label>
-                    </div>
-
-                    <button id="btnSubmit" onclick="saveToCloud()" class="w-full bg-blue-700 text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-blue-800 transition shadow-xl shadow-blue-100 disabled:opacity-50">
-                        <i data-lucide="cloud-upload" class="w-5 h-5"></i> Cập Nhật Lên Website
-                    </button>
+            
+            <div class="p-6 overflow-y-auto space-y-6">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-widest">Nội dung bài đăng</label>
+                    <textarea id="fbInput" rows="6" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:ring-2 focus:ring-blue-600 outline-none text-sm transition" placeholder="Dán nội dung từ Facebook vào đây..."></textarea>
                 </div>
 
-                <!-- Cột danh sách -->
-                <div class="bg-slate-50/80 rounded-2xl p-6 border border-slate-100 flex flex-col">
-                    <div class="flex items-center gap-2 mb-6">
-                        <i data-lucide="list-video" class="w-4 h-4 text-blue-600"></i>
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Nhà đã đăng</span>
-                    </div>
-                    <div id="quickList" class="space-y-3 overflow-y-auto max-h-[400px]">
-                        <!-- List items go here -->
-                    </div>
+                <div class="space-y-3">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hình ảnh thực tế</label>
+                    <div id="uploadPreview" class="hidden grid grid-cols-4 gap-2 pb-2"></div>
+                    <label class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 hover:bg-blue-50 cursor-pointer transition">
+                        <input type="file" id="fileInp" class="hidden" multiple accept="image/*" onchange="handleUpload(this)">
+                        <i data-lucide="camera" class="w-6 h-6 text-slate-400 mb-1"></i>
+                        <span class="text-[11px] font-bold text-slate-400" id="upStatus">Chọn ảnh nhà (Nên chọn từ 3-5 ảnh)</span>
+                    </label>
+                </div>
+
+                <button id="btnSave" onclick="saveData()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-lg shadow-blue-100">
+                    <i data-lucide="upload-cloud" class="w-5 h-5"></i> CẬP NHẬT WEBSITE
+                </button>
+
+                <div class="pt-4">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-4 tracking-widest">Quản lý tin cũ</p>
+                    <div id="quickList" class="space-y-2"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Properties Grid -->
-    <main id="properties" class="max-w-7xl mx-auto px-6 py-20">
-        <div class="flex items-end justify-between mb-12">
-            <div>
-                <h2 class="text-4xl font-serif mb-2">Nhà Thuê Mới Nhất</h2>
-                <div class="h-1.5 w-20 bg-blue-700 rounded-full"></div>
-            </div>
-        </div>
-        <div id="propGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></div>
-    </main>
-
     <script type="module">
         import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
         import { collection, addDoc, onSnapshot, query, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        let currentImgs = [];
+        let currentUrls = [];
 
         window.checkAdmin = () => {
-            const pw = prompt("Mật khẩu Admin:");
-            if (pw === "2110") document.getElementById('adminModal').classList.remove('hidden');
+            const pw = prompt("Mật mã Admin:");
+            if(pw === "2110") document.getElementById('adminModal').classList.remove('hidden');
         };
-
         window.closeAdmin = () => document.getElementById('adminModal').classList.add('hidden');
 
-        window.uploadToStorage = async (input) => {
+        window.handleUpload = async (input) => {
             const files = Array.from(input.files);
-            const preview = document.getElementById('previewImgs');
-            const countLabel = document.getElementById('imgCount');
+            const preview = document.getElementById('uploadPreview');
+            const status = document.getElementById('upStatus');
             
-            preview.innerHTML = '';
-            preview.classList.remove('hidden');
-            currentImgs = [];
+            preview.innerHTML = ''; preview.classList.remove('hidden');
+            currentUrls = [];
+            status.innerText = "Đang tải ảnh...";
 
-            for (const file of files) {
-                const name = `prop_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+            for (const f of files) {
+                const name = `img_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
                 const sRef = ref(window.storage, `properties/${name}`);
                 try {
-                    const snap = await uploadBytes(sRef, file);
+                    const snap = await uploadBytes(sRef, f);
                     const url = await getDownloadURL(snap.ref);
-                    currentImgs.push(url);
-                    preview.innerHTML += `<img src="${url}" class="w-full aspect-square object-cover rounded-lg border border-slate-200">`;
+                    currentUrls.push(url);
+                    preview.innerHTML += `<img src="${url}" class="w-full aspect-square object-cover rounded-xl border border-slate-200 shadow-sm">`;
                 } catch (e) {
-                    alert("Lỗi tải ảnh: " + e.message + "\nHãy kiểm tra Rules trong Firebase Storage!");
+                    alert("Lỗi tải ảnh: " + e.message);
                 }
             }
-            countLabel.innerText = `${currentImgs.length} ảnh`;
+            status.innerText = `Đã tải ${currentUrls.length} ảnh ✅`;
         };
 
-        window.saveToCloud = async () => {
+        window.saveData = async () => {
             const text = document.getElementById('fbInput').value;
-            if (!text.trim()) return alert("Dán nội dung trước Sơn ơi!");
+            if(!text.trim()) return alert("Nhập nội dung Sơn ơi!");
             
-            const btn = document.getElementById('btnSubmit');
-            btn.disabled = true;
-            btn.innerText = "Đang đồng bộ dữ liệu...";
+            const btn = document.getElementById('btnSave');
+            btn.disabled = true; btn.innerText = "Đang đồng bộ...";
 
             const lines = text.split('\n').filter(l => l.trim());
             const price = (text.match(/([\d.]+tr)/i) || ["", "Liên hệ"])[1].toUpperCase();
-            
-            const findVal = (keys) => {
-                const l = lines.find(line => keys.some(k => line.toLowerCase().includes(k.toLowerCase())));
-                return l ? l.split(/[:-]/).pop().trim() : "Liên hệ 0901 026 345";
-            };
 
             const data = {
-                title: (lines.find(l => l.includes('NHÀ')) || lines[0] || "Nhà thuê Cần Thơ").replace('CG - ', '').trim(),
+                title: (lines.find(l => l.includes('NHÀ')) || lines[0] || "NHÀ THUÊ MỚI").replace('CG - ', '').trim(),
                 price: price,
                 deposit: (text.match(/Cọc:\s*([\d\s\w]+)/i) || ["", "02 tháng"])[1].trim(),
-                structure: findVal(['Kết cấu', 'Mô tả', 'Diện tích']),
-                street: findVal(['Lộ giới', 'Hẻm', 'Đường', 'Địa chỉ']),
-                images: currentImgs.length > 0 ? currentImgs : ["https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200"],
+                structure: (lines.find(l => l.toLowerCase().includes('kết cấu')) || "Liên hệ 0901 026 345").split(/[:-]/).pop().trim(),
+                street: (lines.find(l => l.toLowerCase().includes('lộ giới')) || "Liên hệ Hoàng Sơn").split(/[:-]/).pop().trim(),
+                images: currentUrls.length > 0 ? currentUrls : ["https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200"],
                 createdAt: serverTimestamp()
             };
 
             try {
                 await addDoc(collection(window.db, ...window.collectionPath), data);
                 document.getElementById('fbInput').value = '';
-                document.getElementById('previewImgs').innerHTML = '';
-                currentImgs = [];
-                alert("Đã đăng bài thành công lên Cloud!");
+                document.getElementById('uploadPreview').innerHTML = '';
+                currentUrls = [];
+                alert("Đăng bài thành công!");
                 closeAdmin();
             } catch (e) {
-                alert("Lỗi lưu bài: " + e.message);
+                alert("Lỗi: " + e.message);
             } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<i data-lucide="cloud-upload" class="w-5 h-5"></i> Cập Nhật Lên Website`;
+                btn.disabled = false; btn.innerText = "CẬP NHẬT WEBSITE";
             }
         };
 
-        function listenData() {
-            if (!window.db) return setTimeout(listenData, 500);
+        function startSync() {
+            if(!window.db) return setTimeout(startSync, 500);
             const q = query(collection(window.db, ...window.collectionPath));
             onSnapshot(q, (snap) => {
-                const props = [];
-                snap.forEach(d => props.push({ id: d.id, ...d.data() }));
-                props.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                const list = [];
+                snap.forEach(d => list.push({id: d.id, ...d.data()}));
+                list.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
                 
-                // Render Grid
-                const grid = document.getElementById('propGrid');
-                grid.innerHTML = props.map(p => `
-                    <div class="property-card bg-white rounded-[2rem] overflow-hidden flex flex-col">
-                        <div class="h-64 relative">
+                // Grid render
+                document.getElementById('propGrid').innerHTML = list.map(p => `
+                    <div class="property-card shadow-sm flex flex-col">
+                        <div class="h-60 relative overflow-hidden">
                             <img src="${p.images[0]}" class="w-full h-full object-cover">
-                            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-extrabold text-blue-700 border border-blue-100 shadow-sm">MỚI ĐĂNG</div>
-                            <div class="absolute bottom-4 right-4 bg-slate-900/80 backdrop-blur text-white px-4 py-2 rounded-xl font-bold text-sm">${p.price}</div>
+                            <div class="absolute bottom-4 left-4 bg-white/95 px-4 py-2 rounded-2xl font-extrabold text-blue-600 shadow-xl border border-blue-50">${p.price}</div>
                         </div>
-                        <div class="p-8 flex flex-col flex-1">
-                            <h3 class="font-bold text-slate-900 leading-snug mb-4 line-clamp-2 uppercase h-12">${p.title}</h3>
-                            <div class="space-y-3 mb-8 text-slate-500 text-[13px]">
-                                <p class="flex items-start gap-2"><i data-lucide="home" class="w-4 h-4 text-blue-600"></i> ${p.structure}</p>
-                                <p class="flex items-start gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-blue-600"></i> ${p.street}</p>
+                        <div class="p-6 flex-1 flex flex-col">
+                            <h4 class="font-bold text-slate-900 leading-tight mb-4 uppercase line-clamp-2 h-10 text-[15px]">${p.title}</h4>
+                            <div class="space-y-3 mb-6 text-slate-500 text-[13px]">
+                                <p class="flex items-center gap-2"><i data-lucide="layers" class="w-4 h-4 text-blue-500"></i> ${p.structure}</p>
+                                <p class="flex items-center gap-2"><i data-lucide="navigation" class="w-4 h-4 text-blue-500"></i> ${p.street}</p>
                             </div>
-                            <div class="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between">
-                                <div class="leading-tight">
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tiền cọc</p>
-                                    <p class="font-bold text-slate-800">${p.deposit}</p>
+                            <div class="mt-auto pt-5 border-t border-slate-50 flex items-center justify-between">
+                                <div>
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Tiền cọc</p>
+                                    <p class="font-bold text-slate-800 text-sm">${p.deposit}</p>
                                 </div>
-                                <a href="tel:0901026345" class="bg-blue-50 text-blue-700 px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-blue-700 hover:text-white transition">Liên hệ</a>
+                                <a href="tel:0901026345" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs">Liên hệ</a>
                             </div>
                         </div>
                     </div>
                 `).join('');
 
-                // Render Quick List
-                const qList = document.getElementById('quickList');
-                qList.innerHTML = props.map(p => `
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 flex items-center gap-3">
+                // Quick list
+                document.getElementById('quickList').innerHTML = list.map(p => `
+                    <div class="bg-slate-50 p-3 rounded-xl flex items-center gap-3 border border-slate-100">
                         <img src="${p.images[0]}" class="w-10 h-10 rounded-lg object-cover">
                         <div class="flex-1 min-w-0">
                             <p class="text-[10px] font-bold truncate uppercase">${p.title}</p>
                             <p class="text-[9px] text-blue-600 font-bold">${p.price}</p>
                         </div>
-                        <button onclick="deleteProp('${p.id}')" class="text-red-400 hover:text-red-600 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <button onclick="deletePost('${p.id}')" class="text-red-400 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
                 `).join('');
 
-                if (window.lucide) window.lucide.createIcons();
+                if(window.lucide) window.lucide.createIcons();
             });
         }
 
-        window.deleteProp = async (id) => {
-            if(confirm("Xóa tin này nhé Sơn?")) {
-                await deleteDoc(doc(window.db, ...window.collectionPath, id));
-            }
-        }
+        window.deletePost = async (id) => {
+            if(confirm("Xóa tin này nhé?")) await deleteDoc(doc(window.db, ...window.collectionPath, id));
+        };
 
-        listenData();
+        startSync();
     </script>
 </body>
 </html>
