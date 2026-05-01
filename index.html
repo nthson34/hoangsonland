@@ -11,6 +11,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDGQqB3NtdO_sDHAqS3l9VXthixcafCTe4",
@@ -24,11 +25,16 @@
         const app = initializeApp(firebaseConfig);
         window.db = getFirestore(app);
         window.storage = getStorage(app);
+        window.auth = getAuth(app);
 
-        // Đường dẫn chuẩn hóa để tránh lỗi hiển thị
+        // Đăng nhập ẩn danh tự động để vượt qua các rule nghiêm ngặt của Firebase
+        signInAnonymously(window.auth).catch((error) => {
+            console.error("Lỗi đăng nhập ẩn danh:", error);
+        });
+
+        // Đường dẫn chuẩn hóa
         window.colPath = ['artifacts', 'hoangson-v2', 'public', 'data', 'properties'];
 
-        // Sẵn sàng hệ thống
         console.log("Hệ thống đã sẵn sàng");
     </script>
 
